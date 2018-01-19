@@ -238,7 +238,9 @@ class News(Frame):
             traceback.print_exc()
             print "Error: %s. Cannot get news." % e
 
-        self.after(600000, self.get_headlines)
+        #DarkSky API allows 1,000 calls per day for free,
+        #Set as refresh every 5 mins. => 288 calls per day
+        self.after(300000, self.get_headlines)
 
 
 class NewsHeadline(Frame):
