@@ -19,16 +19,17 @@ LOCALE_LOCK = threading.Lock()
 ui_locale = '' # e.g. 'fr_FR' fro French, '' as default
 time_format = 12 # 12 or 24
 date_format = "%b %d, %Y" # check python doc for strftime() for options
-news_country_code = 'us'
-weather_api_token = '<TOKEN>' # create account at https://darksky.net/dev/
+news_country_code = 'cn'
+weather_api_token = 'c483933cdf16e6c34b2f17a6574ef1db' # create account at https://darksky.net/dev/
 weather_lang = 'en' # see https://darksky.net/dev/docs/forecast for full list of language parameters values
-weather_unit = 'us' # see https://darksky.net/dev/docs/forecast for full list of unit parameters values
+weather_unit = 'ca' # see https://darksky.net/dev/docs/forecast for full list of unit parameters values
 latitude = None # Set this if IP location lookup does not work for you (must be a string)
 longitude = None # Set this if IP location lookup does not work for you (must be a string)
 xlarge_text_size = 94
 large_text_size = 48
 medium_text_size = 28
 small_text_size = 18
+future_weather_text_size = 14
 
 @contextmanager
 def setlocale(name): #thread proof function to work with locale
@@ -108,6 +109,14 @@ class Weather(Frame):
         self.location = ''
         self.currently = ''
         self.icon = ''
+
+        #Next week forecast
+        self.forecastNextWeekDay1 = ''
+        self.forecastNextWeekDay2 = ''
+        self.forecastNextWeekDay3 = ''
+        self.forecastNextWeekDay4 = ''
+        self.forecastNextWeekDay5 = ''
+
         self.degreeFrm = Frame(self, bg="black")
         self.degreeFrm.pack(side=TOP, anchor=W)
         self.temperatureLbl = Label(self.degreeFrm, font=('Helvetica', xlarge_text_size), fg="white", bg="black")
@@ -120,6 +129,19 @@ class Weather(Frame):
         self.forecastLbl.pack(side=TOP, anchor=W)
         self.locationLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.locationLbl.pack(side=TOP, anchor=W)
+
+        #Add future weather forecast
+        self.futureLbl1 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
+        self.locationLbl.pack(side=TOP, anchor=W)
+        self.futureLbl2 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
+        self.locationLb2.pack(side=TOP, anchor=W)
+        self.futureLbl3 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
+        self.locationLb3.pack(side=TOP, anchor=W)
+        self.futureLbl4 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
+        self.locationLb4.pack(side=TOP, anchor=W)
+        self.futureLbl5 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
+        self.locationLb5.pack(side=TOP, anchor=W)
+
         self.get_weather()
 
     def get_ip(self):
@@ -161,6 +183,13 @@ class Weather(Frame):
             currently2 = weather_obj['currently']['summary']
             forecast2 = weather_obj["hourly"]["summary"]
 
+            #Define 5 variables for forecast of next week
+            forecastNextWeekDay1_2 = getGivenDayWeather(weather_obj,1)
+            forecastNextWeekDay2_2 = getGivenDayWeather(weather_obj,2)
+            forecastNextWeekDay3_2 = getGivenDayWeather(weather_obj,3)
+            forecastNextWeekDay4_2 = getGivenDayWeather(weather_obj,4)
+            forecastNextWeekDay5_2 = getGivenDayWeather(weather_obj,5)
+
             icon_id = weather_obj['currently']['icon']
             icon2 = None
 
@@ -197,15 +226,52 @@ class Weather(Frame):
                 else:
                     self.location = location2
                     self.locationLbl.config(text=location2)
+
+            #weekday forecast
+            if self.forecastNextWeekDay1 != forecastNextWeekDay1_2:
+                self.forecastNextWeekDay1 = forecastNextWeekDay1_2
+                self.futureLbl1.config(text=forecastNextWeekDay1_2)
+            if self.forecastNextWeekDay2 != forecastNextWeekDay2_2:
+                self.forecastNextWeekDay2 = forecastNextWeekDay2_2
+                self.futureLbl2.config(text=forecastNextWeekDay2_2)
+            if self.forecastNextWeekDay3 != forecastNextWeekDay3_2:
+                self.forecastNextWeekDay3 = forecastNextWeekDay3_2
+                self.futureLbl3.config(text=forecastNextWeekDay3_2)
+            if self.forecastNextWeekDay4 != forecastNextWeekDay4_2:
+                self.forecastNextWeekDay4 = forecastNextWeekDay4_2
+                self.futureLbl4.config(text=forecastNextWeekDay4_2)
+            if self.forecastNextWeekDay5 != forecastNextWeekDay5_2:
+                self.forecastNextWeekDay5 = forecastNextWeekDay5_2
+                self.futureLbl5.config(text=forecastNextWeekDay5_2)
+
         except Exception as e:
             traceback.print_exc()
             print "Error: %s. Cannot get weather." % e
 
-        self.after(600000, self.get_weather)
+        # DarkSky API allows 1,000 calls per day for free,
+        # Set as refresh every 5 mins. => 288 calls per day
+        self.after(300000, self.get_weather)
 
     @staticmethod
     def convert_kelvin_to_fahrenheit(kelvin_temp):
         return 1.8 * (kelvin_temp - 273) + 32
+
+    @staticmethod
+    def getGivenDayWeather(json_object, number):
+        dayPrintString = ""
+
+        day_time = json_object["daily"]["data"][number]["time"]
+        temp_high = json_object["daily"]["data"][number]["temperatureHigh"]
+        temp_low = json_object["daily"]["data"][number]["temperatureLow"]
+        summery = json_object["daily"]["data"][number]["summary"]
+
+        #convert UNIX timestamp to Weekday
+        dayPrintString += time.strftime("%A", time.localtime(day_time))
+
+        #add high and low temp
+        dayPrintString += + " High:" + temp_high + " Low: " + temp_low + " " + summery;
+
+        return dayPrintString
 
 
 class News(Frame):
@@ -238,8 +304,6 @@ class News(Frame):
             traceback.print_exc()
             print "Error: %s. Cannot get news." % e
 
-        #DarkSky API allows 1,000 calls per day for free,
-        #Set as refresh every 5 mins. => 288 calls per day
         self.after(300000, self.get_headlines)
 
 
