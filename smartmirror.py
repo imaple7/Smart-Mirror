@@ -201,11 +201,11 @@ class Weather(Frame):
             forecast2 = weather_obj["hourly"]["summary"]
 
             #Define 5 variables for forecast of next week
-            forecast_next_weekday1_2 = self.get_given_day_weather(weather_obj,1)
-            forecast_next_weekday2_2 = self.get_given_day_weather(weather_obj,2)
-            forecast_next_weekday3_2 = self.get_given_day_weather(weather_obj,3)
-            forecast_next_weekday4_2 = self.get_given_day_weather(weather_obj,4)
-            forecast_next_weekday5_2 = self.get_given_day_weather(weather_obj,5)
+            forecast_next_weekday1_2 = self.get_given_day_weather(self,weather_obj,1)
+            forecast_next_weekday2_2 = self.get_given_day_weather(self,weather_obj,2)
+            forecast_next_weekday3_2 = self.get_given_day_weather(self,weather_obj,3)
+            forecast_next_weekday4_2 = self.get_given_day_weather(self,weather_obj,4)
+            forecast_next_weekday5_2 = self.get_given_day_weather(self,weather_obj,5)
 
             icon_id = weather_obj['currently']['icon']
             icon2 = None
@@ -276,8 +276,7 @@ class Weather(Frame):
     def get_given_day_weather(self, json_object, number):
         day_print = ""
         degree_sign = u'\N{DEGREE SIGN}'
-        future_icon = None
-        future_iconLbl = None
+        future_icon_2 = None
 
         day_time = json_object["daily"]["data"][number]["time"]
         temp_high = "%s%s" % (str(int(json_object["daily"]["data"][number]["temperatureHigh"])), degree_sign)
@@ -292,40 +291,80 @@ class Weather(Frame):
 
         #icon part
         future_icon_id = json_object["daily"]["data"][number]["icon"]
-        future_icon_2 = None
 
         if future_icon_id in icon_lookup:
-            future_icon_2 = icon_lookup[icon_id]
+            future_icon_2 = icon_lookup[future_icon_id]
 
         if number == 1:
-            future_icon = self.forecast_next_weekday_icon1
-            future_iconLbl = self.future_iconLb1
+            if future_icon_2 is not None:
+                if self.forecast_next_weekday_icon1 != future_icon_2:
+                    self.forecast_next_weekday_icon1 = future_icon_2
+                    image = Image.open(icon2)
+                    image = image.resize((50, 50), Image.ANTIALIAS)
+                    image = image.convert('RGB')
+                    photo = ImageTk.PhotoImage(image)
+
+                    self.future_iconLb1.config(image=photo)
+                    self.future_iconLb1.image = photo
+            else:
+                # remove image
+                self.future_iconLb1.config(image='')
         elif number == 2:
-            future_icon = self.forecast_next_weekday_icon2
-            future_iconLbl = self.future_iconLb2
+            if future_icon_2 is not None:
+                if self.forecast_next_weekday_icon2 != future_icon_2:
+                    self.forecast_next_weekday_icon2 = future_icon_2
+                    image = Image.open(icon2)
+                    image = image.resize((50, 50), Image.ANTIALIAS)
+                    image = image.convert('RGB')
+                    photo = ImageTk.PhotoImage(image)
+
+                    self.future_iconLb2.config(image=photo)
+                    self.future_iconLb2.image = photo
+            else:
+                # remove image
+                self.future_iconLb2.config(image='')
         elif number == 3:
-            future_icon = self.forecast_next_weekday_icon3
-            future_iconLbl = self.future_iconLb3
+            if future_icon_2 is not None:
+                if self.forecast_next_weekday_icon3 != future_icon_2:
+                    self.forecast_next_weekday_icon3 = future_icon_2
+                    image = Image.open(icon2)
+                    image = image.resize((50, 50), Image.ANTIALIAS)
+                    image = image.convert('RGB')
+                    photo = ImageTk.PhotoImage(image)
+
+                    self.future_iconLb3.config(image=photo)
+                    self.future_iconLb3.image = photo
+            else:
+                # remove image
+                self.future_iconLb3.config(image='')
         elif number == 4:
-            future_icon = self.forecast_next_weekday_icon4
-            future_iconLbl = self.future_iconLb4
+            if future_icon_2 is not None:
+                if self.forecast_next_weekday_icon4 != future_icon_2:
+                    self.forecast_next_weekday_icon4 = future_icon_2
+                    image = Image.open(icon2)
+                    image = image.resize((50, 50), Image.ANTIALIAS)
+                    image = image.convert('RGB')
+                    photo = ImageTk.PhotoImage(image)
+
+                    self.future_iconLb4.config(image=photo)
+                    self.future_iconLb4.image = photo
+            else:
+                # remove image
+                self.future_iconLb4.config(image='')
         elif number == 5:
-            future_icon = self.forecast_next_weekday_icon5
-            future_iconLbl = self.future_iconLb5
+            if future_icon_2 is not None:
+                if self.forecast_next_weekday_icon5 != future_icon_2:
+                    self.forecast_next_weekday_icon5 = future_icon_2
+                    image = Image.open(icon2)
+                    image = image.resize((50, 50), Image.ANTIALIAS)
+                    image = image.convert('RGB')
+                    photo = ImageTk.PhotoImage(image)
 
-        if future_icon_2 is not None:
-            if future_icon != icon2:
-                future_icon = icon2
-                image = Image.open(icon2)
-                image = image.resize((50, 50), Image.ANTIALIAS)
-                image = image.convert('RGB')
-                photo = ImageTk.PhotoImage(image)
-
-                future_iconLbl.config(image=photo)
-                future_iconLbl.image = photo
-        else:
-            # remove image
-            future_iconLbl.config(image='')
+                    self.future_iconLb5.config(image=photo)
+                    self.future_iconLb5.image = photo
+            else:
+                # remove image
+                self.future_iconLb5.config(image='')
 
         return day_print
 
