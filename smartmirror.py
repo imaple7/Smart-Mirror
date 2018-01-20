@@ -162,6 +162,7 @@ class Weather(Frame):
 
             r = requests.get(weather_req_url)
             weather_obj = json.loads(r.text)
+            self.get_futureForecast(weather_obj)
 
             degree_sign= u'\N{DEGREE SIGN}'
             temperature2 = "%s%s" % (str(int(weather_obj['currently']['temperature'])), degree_sign)
@@ -218,10 +219,10 @@ class Weather(Frame):
             for widget in self.futureContainer.winfo_children():
                 widget.destroy()
 
-            next_week_forecast = json_object["daily"]["data"][number]
+            next_week_forecast = json_object["daily"]
 
-            for day_forecast in next_week_forecast.entries[1:7]:
-                dayForecast = DayForecast(self.futureContainer, day_forecast.time, day_forecast.temperatureHigh, day_forecast.temperatureLow, day_forecast.icon)
+            for day_forecast in next_week_forecast["data"][1:7]:
+                dayForecast = DayForecast(self.futureContainer, day_forecast["time"], day_forecast["temperatureHigh"], day_forecast["temperatureLow"], day_forecast["icon"])
                 dayForecast.pack(side=TOP, anchor=W)
         except Exception as e:
             traceback.print_exc()
@@ -231,25 +232,34 @@ class DayForecast(Frame):
     def __init__(self, parent, day_time="", day_high_temp = 0.0, day_low_temp = 0.0, day_icon=""):
         Frame.__init__(self, parent, bg='black')
         future_icon_2 = None
+
         degree_sign = u'\N{DEGREE SIGN}'
-        temp_high = "%s%s" % (str(int(json_object["daily"]["data"][number]["temperatureHigh"])), degree_sign)
-        temp_low = "%s%s" % (str(int(json_object["daily"]["data"][number]["temperatureLow"])), degree_sign)
+        temp_high = "%s%s" % (str(int(day_high_temp)), degree_sign)
+        temp_low = "%s%s" % (str(int(day_low_temp)), degree_sign)
         day_print = ""
 
         # convert UNIX timestamp to Weekday
-        day_print += time.strftime("%A", time.localtime(day_time)) + " High:" + temp_high + " Low: " + temp_low
+	day_time_string = time.strftime("%A", time.localtime(day_time))
+	day_high_temp_string = "High:" + temp_high
+	day_low_temp_string = "Low:" + temp_low
+
+	if day_time_string == "Wednesday":
+            day_time_string += "\t"
+	else:
+	    day_time_string += "\t\t"
+        day_print += day_time_string + day_high_temp_string + "\t" + day_low_temp_string + "\t"
 
         if day_icon in icon_lookup:
             future_icon_2 = icon_lookup[day_icon]
 
         if future_icon_2 is not None:
             image = Image.open(future_icon_2)
-            image = image.resize((50, 50), Image.ANTIALIAS)
+            image = image.resize((25, 25), Image.ANTIALIAS)
             image = image.convert('RGB')
             photo = ImageTk.PhotoImage(image)
 
         self.eventName = day_time
-        self.eventNameLbl = Label(self, text=day_print, font=('Helvetica', small_text_size), fg="white",bg="black")
+        self.eventNameLbl = Label(self, text=day_print, font=('Helvetica', future_weather_text_size), fg="white",bg="black")
         self.eventNameLbl.pack(side=LEFT, anchor=N)
 
         self.iconLbl = Label(self, bg='black', image=photo)
@@ -279,7 +289,7 @@ class News(Frame):
 
             feed = feedparser.parse(headlines_url)
 
-            for post in feed.entries[0:5]:
+            for post in feed.entries[1:6]:
                 headline = NewsHeadline(self.headlinesContainer, post.title)
                 headline.pack(side=TOP, anchor=W)
         except Exception as e:
