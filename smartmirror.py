@@ -116,6 +116,13 @@ class Weather(Frame):
         self.forecast_next_weekday3 = ''
         self.forecast_next_weekday4 = ''
         self.forecast_next_weekday5 = ''
+        # Next week forecast icon
+        self.forecast_next_weekday_icon1 = ''
+        self.forecast_next_weekday_icon2 = ''
+        self.forecast_next_weekday_icon3 = ''
+        self.forecast_next_weekday_icon4 = ''
+        self.forecast_next_weekday_icon5 = ''
+
 
         self.degreeFrm = Frame(self, bg="black")
         self.degreeFrm.pack(side=TOP, anchor=W)
@@ -133,14 +140,24 @@ class Weather(Frame):
         #Add future weather forecast
         self.futureLbl1 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
         self.futureLbl1.pack(side=TOP, anchor=W)
+        self.future_iconLbl = Label(self.futureLbl1, bg="black")
+        self.future_iconLbl.pack(side=LEFT, anchor=N, padx=20)
         self.futureLbl2 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
         self.futureLbl2.pack(side=TOP, anchor=W)
+        self.future_iconLb2 = Label(self.futureLbl2, bg="black")
+        self.future_iconLb2.pack(side=LEFT, anchor=N, padx=20)
         self.futureLbl3 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
         self.futureLbl3.pack(side=TOP, anchor=W)
+        self.future_iconLb3 = Label(self.futureLbl3, bg="black")
+        self.future_iconLb3.pack(side=LEFT, anchor=N, padx=20)
         self.futureLbl4 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
         self.futureLbl4.pack(side=TOP, anchor=W)
+        self.future_iconLb4 = Label(self.futureLbl4, bg="black")
+        self.future_iconLb4.pack(side=LEFT, anchor=N, padx=20)
         self.futureLbl5 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
         self.futureLbl5.pack(side=TOP, anchor=W)
+        self.future_iconLb5 = Label(self.futureLbl5, bg="black")
+        self.future_iconLb5.pack(side=LEFT, anchor=N, padx=20)
 
         self.get_weather()
 
@@ -256,9 +273,11 @@ class Weather(Frame):
     def convert_kelvin_to_fahrenheit(kelvin_temp):
         return 1.8 * (kelvin_temp - 273) + 32
 
-    @staticmethod
     def get_given_day_weather(self, json_object, number):
         day_print = ""
+        degree_sign = u'\N{DEGREE SIGN}'
+        future_icon = None
+        future_iconLbl = None
 
         day_time = json_object["daily"]["data"][number]["time"]
         temp_high = "%s%s" % (str(int(json_object["daily"]["data"][number]["temperatureHigh"])), degree_sign)
@@ -270,6 +289,43 @@ class Weather(Frame):
 
         #add high and low temp
         day_print += " High:" + temp_high + " Low: " + temp_low + " " + summery
+
+        #icon part
+        future_icon_id = json_object["daily"]["data"][number]["icon"]
+        future_icon_2 = None
+
+        if future_icon_id in icon_lookup:
+            future_icon_2 = icon_lookup[icon_id]
+
+        if number == 1:
+            future_icon = self.forecast_next_weekday_icon1
+            future_iconLbl = self.future_iconLb1
+        elif number == 2:
+            future_icon = self.forecast_next_weekday_icon2
+            future_iconLbl = self.future_iconLb2
+        elif number == 3:
+            future_icon = self.forecast_next_weekday_icon3
+            future_iconLbl = self.future_iconLb3
+        elif number == 4:
+            future_icon = self.forecast_next_weekday_icon4
+            future_iconLbl = self.future_iconLb4
+        elif number == 5:
+            future_icon = self.forecast_next_weekday_icon5
+            future_iconLbl = self.future_iconLb5
+
+        if future_icon_2 is not None:
+            if future_icon != icon2:
+                future_icon = icon2
+                image = Image.open(icon2)
+                image = image.resize((50, 50), Image.ANTIALIAS)
+                image = image.convert('RGB')
+                photo = ImageTk.PhotoImage(image)
+
+                future_iconLbl.config(image=photo)
+                future_iconLbl.image = photo
+        else:
+            # remove image
+            future_iconLbl.config(image='')
 
         return day_print
 
