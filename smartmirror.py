@@ -111,11 +111,11 @@ class Weather(Frame):
         self.icon = ''
 
         #Next week forecast
-        self.forecastNextWeekDay1 = ''
-        self.forecastNextWeekDay2 = ''
-        self.forecastNextWeekDay3 = ''
-        self.forecastNextWeekDay4 = ''
-        self.forecastNextWeekDay5 = ''
+        self.forecast_next_weekday1 = ''
+        self.forecast_next_weekday2 = ''
+        self.forecast_next_weekday3 = ''
+        self.forecast_next_weekday4 = ''
+        self.forecast_next_weekday5 = ''
 
         self.degreeFrm = Frame(self, bg="black")
         self.degreeFrm.pack(side=TOP, anchor=W)
@@ -132,15 +132,15 @@ class Weather(Frame):
 
         #Add future weather forecast
         self.futureLbl1 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.locationLbl.pack(side=TOP, anchor=W)
+        self.futureLbl1.pack(side=TOP, anchor=W)
         self.futureLbl2 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.locationLb2.pack(side=TOP, anchor=W)
+        self.futureLbl2.pack(side=TOP, anchor=W)
         self.futureLbl3 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.locationLb3.pack(side=TOP, anchor=W)
+        self.futureLbl3.pack(side=TOP, anchor=W)
         self.futureLbl4 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.locationLb4.pack(side=TOP, anchor=W)
+        self.futureLbl4.pack(side=TOP, anchor=W)
         self.futureLbl5 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.locationLb5.pack(side=TOP, anchor=W)
+        self.futureLbl5.pack(side=TOP, anchor=W)
 
         self.get_weather()
 
@@ -184,11 +184,11 @@ class Weather(Frame):
             forecast2 = weather_obj["hourly"]["summary"]
 
             #Define 5 variables for forecast of next week
-            forecastNextWeekDay1_2 = getGivenDayWeather(weather_obj,1)
-            forecastNextWeekDay2_2 = getGivenDayWeather(weather_obj,2)
-            forecastNextWeekDay3_2 = getGivenDayWeather(weather_obj,3)
-            forecastNextWeekDay4_2 = getGivenDayWeather(weather_obj,4)
-            forecastNextWeekDay5_2 = getGivenDayWeather(weather_obj,5)
+            forecast_next_weekday1_2 = get_given_day_weather(weather_obj,1)
+            forecast_next_weekday2_2 = get_given_day_weather(weather_obj,2)
+            forecast_next_weekday3_2 = get_given_day_weather(weather_obj,3)
+            forecast_next_weekday4_2 = get_given_day_weather(weather_obj,4)
+            forecast_next_weekday5_2 = get_given_day_weather(weather_obj,5)
 
             icon_id = weather_obj['currently']['icon']
             icon2 = None
@@ -228,21 +228,21 @@ class Weather(Frame):
                     self.locationLbl.config(text=location2)
 
             #weekday forecast
-            if self.forecastNextWeekDay1 != forecastNextWeekDay1_2:
-                self.forecastNextWeekDay1 = forecastNextWeekDay1_2
-                self.futureLbl1.config(text=forecastNextWeekDay1_2)
-            if self.forecastNextWeekDay2 != forecastNextWeekDay2_2:
-                self.forecastNextWeekDay2 = forecastNextWeekDay2_2
-                self.futureLbl2.config(text=forecastNextWeekDay2_2)
-            if self.forecastNextWeekDay3 != forecastNextWeekDay3_2:
-                self.forecastNextWeekDay3 = forecastNextWeekDay3_2
-                self.futureLbl3.config(text=forecastNextWeekDay3_2)
-            if self.forecastNextWeekDay4 != forecastNextWeekDay4_2:
-                self.forecastNextWeekDay4 = forecastNextWeekDay4_2
-                self.futureLbl4.config(text=forecastNextWeekDay4_2)
-            if self.forecastNextWeekDay5 != forecastNextWeekDay5_2:
-                self.forecastNextWeekDay5 = forecastNextWeekDay5_2
-                self.futureLbl5.config(text=forecastNextWeekDay5_2)
+            if self.forecast_next_weekday1 != forecast_next_weekday1_2:
+                self.forecast_next_weekday1 = forecast_next_weekday1_2
+                self.futureLbl1.config(text=forecast_next_weekday1_2)
+            if self.forecast_next_weekday2 != forecast_next_weekday2_2:
+                self.forecast_next_weekday2 = forecast_next_weekday2_2
+                self.futureLbl2.config(text=forecast_next_weekday2_2)
+            if self.forecast_next_weekday3 != forecast_next_weekday3_2:
+                self.forecast_next_weekday3 = forecast_next_weekday3_2
+                self.futureLbl3.config(text=forecast_next_weekday3_2)
+            if self.forecast_next_weekday4 != forecast_next_weekday4_2:
+                self.forecast_next_weekday4 = forecast_next_weekday4_2
+                self.futureLbl4.config(text=forecast_next_weekday4_2)
+            if self.forecast_next_weekday5 != forecast_next_weekday5_2:
+                self.forecast_next_weekday5 = forecast_next_weekday5_2
+                self.futureLbl5.config(text=forecast_next_weekday5_2)
 
         except Exception as e:
             traceback.print_exc()
@@ -257,8 +257,8 @@ class Weather(Frame):
         return 1.8 * (kelvin_temp - 273) + 32
 
     @staticmethod
-    def getGivenDayWeather(json_object, number):
-        dayPrintString = ""
+    def get_given_day_weather(json_object, number):
+        day_print = ""
 
         day_time = json_object["daily"]["data"][number]["time"]
         temp_high = json_object["daily"]["data"][number]["temperatureHigh"]
@@ -266,12 +266,12 @@ class Weather(Frame):
         summery = json_object["daily"]["data"][number]["summary"]
 
         #convert UNIX timestamp to Weekday
-        dayPrintString += time.strftime("%A", time.localtime(day_time))
+        day_print += time.strftime("%A", time.localtime(day_time))
 
         #add high and low temp
-        dayPrintString += + " High:" + temp_high + " Low: " + temp_low + " " + summery;
+        day_print += + " High:" + temp_high + " Low: " + temp_low + " " + summery;
 
-        return dayPrintString
+        return day_print
 
 
 class News(Frame):
