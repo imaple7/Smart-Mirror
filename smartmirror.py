@@ -110,20 +110,6 @@ class Weather(Frame):
         self.currently = ''
         self.icon = ''
 
-        #Next week forecast
-        self.forecast_next_weekday1 = ''
-        self.forecast_next_weekday2 = ''
-        self.forecast_next_weekday3 = ''
-        self.forecast_next_weekday4 = ''
-        self.forecast_next_weekday5 = ''
-        # Next week forecast icon
-        self.forecast_next_weekday_icon1 = ''
-        self.forecast_next_weekday_icon2 = ''
-        self.forecast_next_weekday_icon3 = ''
-        self.forecast_next_weekday_icon4 = ''
-        self.forecast_next_weekday_icon5 = ''
-
-
         self.degreeFrm = Frame(self, bg="black")
         self.degreeFrm.pack(side=TOP, anchor=W)
         self.temperatureLbl = Label(self.degreeFrm, font=('Helvetica', xlarge_text_size), fg="white", bg="black")
@@ -137,27 +123,9 @@ class Weather(Frame):
         self.locationLbl = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.locationLbl.pack(side=TOP, anchor=W)
 
-        #Add future weather forecast
-        self.futureLbl1 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.futureLbl1.pack(side=TOP, anchor=W)
-        self.future_iconLbl = Label(self.futureLbl1, bg="black")
-        self.future_iconLbl.pack(side=LEFT, anchor=N, padx=20)
-        self.futureLbl2 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.futureLbl2.pack(side=TOP, anchor=W)
-        self.future_iconLb2 = Label(self.futureLbl2, bg="black")
-        self.future_iconLb2.pack(side=LEFT, anchor=N, padx=20)
-        self.futureLbl3 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.futureLbl3.pack(side=TOP, anchor=W)
-        self.future_iconLb3 = Label(self.futureLbl3, bg="black")
-        self.future_iconLb3.pack(side=LEFT, anchor=N, padx=20)
-        self.futureLbl4 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.futureLbl4.pack(side=TOP, anchor=W)
-        self.future_iconLb4 = Label(self.futureLbl4, bg="black")
-        self.future_iconLb4.pack(side=LEFT, anchor=N, padx=20)
-        self.futureLbl5 =  Label(self, font=('Helvetica', future_weather_text_size), fg="white", bg="black")
-        self.futureLbl5.pack(side=TOP, anchor=W)
-        self.future_iconLb5 = Label(self.futureLbl5, bg="black")
-        self.future_iconLb5.pack(side=LEFT, anchor=N, padx=20)
+        self.futureContainer = Frame(self, bg="black")
+        self.futureContainer.pack(side=TOP)
+
 
         self.get_weather()
 
@@ -199,14 +167,6 @@ class Weather(Frame):
             temperature2 = "%s%s" % (str(int(weather_obj['currently']['temperature'])), degree_sign)
             currently2 = weather_obj['currently']['summary']
             forecast2 = weather_obj["hourly"]["summary"]
-
-            #Define 5 variables for forecast of next week
-            forecast_next_weekday1_2 = self.get_given_day_weather(self,weather_obj,1)
-            forecast_next_weekday2_2 = self.get_given_day_weather(self,weather_obj,2)
-            forecast_next_weekday3_2 = self.get_given_day_weather(self,weather_obj,3)
-            forecast_next_weekday4_2 = self.get_given_day_weather(self,weather_obj,4)
-            forecast_next_weekday5_2 = self.get_given_day_weather(self,weather_obj,5)
-
             icon_id = weather_obj['currently']['icon']
             icon2 = None
 
@@ -244,23 +204,6 @@ class Weather(Frame):
                     self.location = location2
                     self.locationLbl.config(text=location2)
 
-            #weekday forecast
-            if self.forecast_next_weekday1 != forecast_next_weekday1_2:
-                self.forecast_next_weekday1 = forecast_next_weekday1_2
-                self.futureLbl1.config(text=forecast_next_weekday1_2)
-            if self.forecast_next_weekday2 != forecast_next_weekday2_2:
-                self.forecast_next_weekday2 = forecast_next_weekday2_2
-                self.futureLbl2.config(text=forecast_next_weekday2_2)
-            if self.forecast_next_weekday3 != forecast_next_weekday3_2:
-                self.forecast_next_weekday3 = forecast_next_weekday3_2
-                self.futureLbl3.config(text=forecast_next_weekday3_2)
-            if self.forecast_next_weekday4 != forecast_next_weekday4_2:
-                self.forecast_next_weekday4 = forecast_next_weekday4_2
-                self.futureLbl4.config(text=forecast_next_weekday4_2)
-            if self.forecast_next_weekday5 != forecast_next_weekday5_2:
-                self.forecast_next_weekday5 = forecast_next_weekday5_2
-                self.futureLbl5.config(text=forecast_next_weekday5_2)
-
         except Exception as e:
             traceback.print_exc()
             print "Error: %s. Cannot get weather." % e
@@ -269,105 +212,49 @@ class Weather(Frame):
         # Set as refresh every 5 mins. => 288 calls per day
         self.after(300000, self.get_weather)
 
-    @staticmethod
-    def convert_kelvin_to_fahrenheit(kelvin_temp):
-        return 1.8 * (kelvin_temp - 273) + 32
+    def get_futureForecast(self, json_object):
+        try:
+            # remove all children
+            for widget in self.futureContainer.winfo_children():
+                widget.destroy()
 
-    def get_given_day_weather(self, json_object, number):
-        day_print = ""
-        degree_sign = u'\N{DEGREE SIGN}'
+            next_week_forecast = json_object["daily"]["data"][number]
+
+            for day_forecast in next_week_forecast.entries[1:7]:
+                dayForecast = DayForecast(self.futureContainer, day_forecast.time, day_forecast.temperatureHigh, day_forecast.temperatureLow, day_forecast.icon)
+                dayForecast.pack(side=TOP, anchor=W)
+        except Exception as e:
+            traceback.print_exc()
+            print "Error: %s. Cannot get forecast." % e
+
+class DayForecast(Frame):
+    def __init__(self, parent, day_time="", day_high_temp = 0.0, day_low_temp = 0.0, day_icon=""):
+        Frame.__init__(self, parent, bg='black')
         future_icon_2 = None
-
-        day_time = json_object["daily"]["data"][number]["time"]
+        degree_sign = u'\N{DEGREE SIGN}'
         temp_high = "%s%s" % (str(int(json_object["daily"]["data"][number]["temperatureHigh"])), degree_sign)
         temp_low = "%s%s" % (str(int(json_object["daily"]["data"][number]["temperatureLow"])), degree_sign)
-        summery = json_object["daily"]["data"][number]["summary"]
+        day_print = ""
 
-        #convert UNIX timestamp to Weekday
-        day_print += time.strftime("%A", time.localtime(day_time))
+        # convert UNIX timestamp to Weekday
+        day_print += time.strftime("%A", time.localtime(day_time)) + " High:" + temp_high + " Low: " + temp_low
 
-        #add high and low temp
-        day_print += " High:" + temp_high + " Low: " + temp_low + " " + summery
+        if day_icon in icon_lookup:
+            future_icon_2 = icon_lookup[day_icon]
 
-        #icon part
-        future_icon_id = json_object["daily"]["data"][number]["icon"]
+        if future_icon_2 is not None:
+            image = Image.open(future_icon_2)
+            image = image.resize((50, 50), Image.ANTIALIAS)
+            image = image.convert('RGB')
+            photo = ImageTk.PhotoImage(image)
 
-        if future_icon_id in icon_lookup:
-            future_icon_2 = icon_lookup[future_icon_id]
+        self.eventName = day_time
+        self.eventNameLbl = Label(self, text=day_print, font=('Helvetica', small_text_size), fg="white",bg="black")
+        self.eventNameLbl.pack(side=LEFT, anchor=N)
 
-        if number == 1:
-            if future_icon_2 is not None:
-                if self.forecast_next_weekday_icon1 != future_icon_2:
-                    self.forecast_next_weekday_icon1 = future_icon_2
-                    image = Image.open(icon2)
-                    image = image.resize((50, 50), Image.ANTIALIAS)
-                    image = image.convert('RGB')
-                    photo = ImageTk.PhotoImage(image)
-
-                    self.future_iconLb1.config(image=photo)
-                    self.future_iconLb1.image = photo
-            else:
-                # remove image
-                self.future_iconLb1.config(image='')
-        elif number == 2:
-            if future_icon_2 is not None:
-                if self.forecast_next_weekday_icon2 != future_icon_2:
-                    self.forecast_next_weekday_icon2 = future_icon_2
-                    image = Image.open(icon2)
-                    image = image.resize((50, 50), Image.ANTIALIAS)
-                    image = image.convert('RGB')
-                    photo = ImageTk.PhotoImage(image)
-
-                    self.future_iconLb2.config(image=photo)
-                    self.future_iconLb2.image = photo
-            else:
-                # remove image
-                self.future_iconLb2.config(image='')
-        elif number == 3:
-            if future_icon_2 is not None:
-                if self.forecast_next_weekday_icon3 != future_icon_2:
-                    self.forecast_next_weekday_icon3 = future_icon_2
-                    image = Image.open(icon2)
-                    image = image.resize((50, 50), Image.ANTIALIAS)
-                    image = image.convert('RGB')
-                    photo = ImageTk.PhotoImage(image)
-
-                    self.future_iconLb3.config(image=photo)
-                    self.future_iconLb3.image = photo
-            else:
-                # remove image
-                self.future_iconLb3.config(image='')
-        elif number == 4:
-            if future_icon_2 is not None:
-                if self.forecast_next_weekday_icon4 != future_icon_2:
-                    self.forecast_next_weekday_icon4 = future_icon_2
-                    image = Image.open(icon2)
-                    image = image.resize((50, 50), Image.ANTIALIAS)
-                    image = image.convert('RGB')
-                    photo = ImageTk.PhotoImage(image)
-
-                    self.future_iconLb4.config(image=photo)
-                    self.future_iconLb4.image = photo
-            else:
-                # remove image
-                self.future_iconLb4.config(image='')
-        elif number == 5:
-            if future_icon_2 is not None:
-                if self.forecast_next_weekday_icon5 != future_icon_2:
-                    self.forecast_next_weekday_icon5 = future_icon_2
-                    image = Image.open(icon2)
-                    image = image.resize((50, 50), Image.ANTIALIAS)
-                    image = image.convert('RGB')
-                    photo = ImageTk.PhotoImage(image)
-
-                    self.future_iconLb5.config(image=photo)
-                    self.future_iconLb5.image = photo
-            else:
-                # remove image
-                self.future_iconLb5.config(image='')
-
-        return day_print
-
+        self.iconLbl = Label(self, bg='black', image=photo)
+        self.iconLbl.image = photo
+        self.iconLbl.pack(side=LEFT, anchor=N, padx=20)
 
 class News(Frame):
     def __init__(self, parent, *args, **kwargs):
