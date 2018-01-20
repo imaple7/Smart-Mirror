@@ -184,11 +184,11 @@ class Weather(Frame):
             forecast2 = weather_obj["hourly"]["summary"]
 
             #Define 5 variables for forecast of next week
-            forecast_next_weekday1_2 = get_given_day_weather(weather_obj,1)
-            forecast_next_weekday2_2 = get_given_day_weather(weather_obj,2)
-            forecast_next_weekday3_2 = get_given_day_weather(weather_obj,3)
-            forecast_next_weekday4_2 = get_given_day_weather(weather_obj,4)
-            forecast_next_weekday5_2 = get_given_day_weather(weather_obj,5)
+            forecast_next_weekday1_2 = self.get_given_day_weather(weather_obj,1)
+            forecast_next_weekday2_2 = self.get_given_day_weather(weather_obj,2)
+            forecast_next_weekday3_2 = self.get_given_day_weather(weather_obj,3)
+            forecast_next_weekday4_2 = self.get_given_day_weather(weather_obj,4)
+            forecast_next_weekday5_2 = self.get_given_day_weather(weather_obj,5)
 
             icon_id = weather_obj['currently']['icon']
             icon2 = None
@@ -257,19 +257,19 @@ class Weather(Frame):
         return 1.8 * (kelvin_temp - 273) + 32
 
     @staticmethod
-    def get_given_day_weather(json_object, number):
+    def get_given_day_weather(self, json_object, number):
         day_print = ""
 
         day_time = json_object["daily"]["data"][number]["time"]
-        temp_high = json_object["daily"]["data"][number]["temperatureHigh"]
-        temp_low = json_object["daily"]["data"][number]["temperatureLow"]
+        temp_high = "%s%s" % (str(int(json_object["daily"]["data"][number]["temperatureHigh"])), degree_sign)
+        temp_low = "%s%s" % (str(int(json_object["daily"]["data"][number]["temperatureLow"])), degree_sign)
         summery = json_object["daily"]["data"][number]["summary"]
 
         #convert UNIX timestamp to Weekday
         day_print += time.strftime("%A", time.localtime(day_time))
 
         #add high and low temp
-        day_print += + " High:" + temp_high + " Low: " + temp_low + " " + summery;
+        day_print += " High:" + temp_high + " Low: " + temp_low + " " + summery
 
         return day_print
 
