@@ -298,7 +298,6 @@ class News(Frame):
 
         self.after(300000, self.get_headlines)
 
-
 class NewsHeadline(Frame):
     def __init__(self, parent, event_name=""):
         Frame.__init__(self, parent, bg='black')
@@ -315,7 +314,6 @@ class NewsHeadline(Frame):
         self.eventName = event_name
         self.eventNameLbl = Label(self, text=self.eventName, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.eventNameLbl.pack(side=LEFT, anchor=N)
-
 
 class Calendar(Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -339,7 +337,6 @@ class Calendar(Frame):
         calendar_event.pack(side=TOP, anchor=E)
         pass
 
-
 class CalendarEvent(Frame):
     def __init__(self, parent, event_name="Event 1"):
         Frame.__init__(self, parent, bg='black')
@@ -347,6 +344,38 @@ class CalendarEvent(Frame):
         self.eventNameLbl = Label(self, text=self.eventName, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.eventNameLbl.pack(side=TOP, anchor=E)
 
+class CenterText(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, *args, **kwargs)
+        self.config(bg='black')
+        self.sentence = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.sentence.pack(side=TOP, anchor=W)
+        self.reference = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.reference.pack(side=RIGHT, anchor=W)
+
+        self.get_quotation()
+
+    def get_quotation(self):
+        try:
+            # Get json
+            quotation_url = "https://sslapi.hitokoto.cn/?encode=json"
+
+            r = requests.get(quotation_url)
+            quotation_obj = json.loads(r.text)
+
+            sentence = quotation_obj["hitokoto"]
+            reference = quotation_obj["from"]
+
+            print(sentence + " -- " + reference)
+
+            self.sentence.config(text=sentence)
+            self.reference.config(text=reference)
+
+        except Exception as e:
+            traceback.print_exc()
+            print "Error: %s. Cannot get quotation." % e
+
+        self.after(300000, self.get_quotation)
 
 class FullscreenWindow:
 
@@ -357,6 +386,9 @@ class FullscreenWindow:
         self.bottomFrame = Frame(self.tk, background = 'black')
         self.topFrame.pack(side = TOP, fill=BOTH, expand = YES)
         self.bottomFrame.pack(side = BOTTOM, fill=BOTH, expand = YES)
+        self.centerFrame = Frame(self.tk, background = 'black')
+        self.centerFrame.pack(side = TOP, fill=BOTH, expand = YES)
+        self.centerFrame.place(relx=0.5, rely=0.5, anchor=CENTER)
         self.state = False
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
@@ -369,6 +401,10 @@ class FullscreenWindow:
         # news
         self.news = News(self.bottomFrame)
         self.news.pack(side=LEFT, anchor=S, padx=100, pady=60)
+        #center text - Hitokoto
+        self.centerText = CenterText(self.centerFrame)
+        self.centerText.pack(side=LEFT, anchor=S, padx=10, pady=10)
+
         # calender - removing for now
         # self.calender = Calendar(self.bottomFrame)
         # self.calender.pack(side = RIGHT, anchor=S, padx=100, pady=60)
