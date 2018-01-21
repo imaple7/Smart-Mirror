@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+
 # smartmirror.py
 # requirements
 # requests, feedparser, traceback, Pillow
 
 from Tkinter import *
+from lunar import Lunar
 import locale
 import threading
 import time
@@ -74,6 +77,14 @@ class Clock(Frame):
         self.date1 = ''
         self.dateLbl = Label(self, text=self.date1, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.dateLbl.pack(side=TOP, anchor=E)
+        # initialize chinese calendar
+        self.chineseDate1 = ''
+        self.chineseDateLb1 = Label(self, text=self.date1, font=('Helvetica', small_text_size), fg="white", bg="black")
+        self.chineseDateLb1.pack(side=TOP, anchor=E)
+        self.chineseJieqi1 = ''
+        self.chineseJieqiLbl = Label(self, text=self.date1, font=('Helvetica', small_text_size), fg="white", bg="black")
+        self.chineseJieqiLbl.pack(side=TOP, anchor=E)
+
         self.tick()
 
     def tick(self):
@@ -95,11 +106,22 @@ class Clock(Frame):
             if date2 != self.date1:
                 self.date1 = date2
                 self.dateLbl.config(text=date2)
+
+            #Chinese calendar
+            ln = Lunar()
+            chineseDate2 = ln.ln_date_str() + " 【" + ln.gz_year() + "】 " + ln.sx_year() + "年 " + ln.gz_day() + "日 " + ln.gz_hour() + "时"
+            chineseJieqi2 = "节气：" + ln.ln_jie()
+            if chineseDate2 != self.chineseDate1:
+                self.chineseDate1 = chineseDate2
+                self.chineseDateLb1.config(text=chineseDate2)
+            if chineseJieqi2 != self.chineseJieqi1:
+                self.chineseJieqi1 = chineseJieqi2
+                self.chineseJieqiLbl.config(text=chineseJieqi2)
+
             # calls itself every 200 milliseconds
             # to update the time display as needed
             # could use >200 ms, but display gets jerky
             self.timeLbl.after(200, self.tick)
-
 
 class Weather(Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -348,9 +370,9 @@ class CenterText(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, *args, **kwargs)
         self.config(bg='black')
-        self.sentence = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.sentence = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.sentence.pack(side=TOP, anchor=W)
-        self.reference = Label(self, font=('Helvetica', medium_text_size), fg="white", bg="black")
+        self.reference = Label(self, font=('Helvetica', small_text_size), fg="white", bg="black")
         self.reference.pack(side=RIGHT, anchor=W)
 
         self.get_quotation()
@@ -365,8 +387,6 @@ class CenterText(Frame):
 
             sentence = quotation_obj["hitokoto"]
             reference = quotation_obj["from"]
-
-            print(sentence + " -- " + reference)
 
             self.sentence.config(text=sentence)
             self.reference.config(text=reference)
@@ -388,7 +408,7 @@ class FullscreenWindow:
         self.bottomFrame.pack(side = BOTTOM, fill=BOTH, expand = YES)
         self.centerFrame = Frame(self.tk, background = 'black')
         self.centerFrame.pack(side = TOP, fill=BOTH, expand = YES)
-        self.centerFrame.place(relx=0.5, rely=0.5, anchor=CENTER)
+        self.centerFrame.place(relx=0.5, rely=0.6, anchor=CENTER)
         self.state = False
         self.tk.bind("<Return>", self.toggle_fullscreen)
         self.tk.bind("<Escape>", self.end_fullscreen)
