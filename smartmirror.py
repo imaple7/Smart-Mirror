@@ -5,7 +5,7 @@
 # requests, feedparser, traceback, Pillow
 
 from Tkinter import *
-from lunar import Lunar
+from lunardate import LunarDate
 import locale
 import threading
 import time
